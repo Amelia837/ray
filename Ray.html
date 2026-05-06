@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一个甜蜜的请求</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', 'Arial', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 20px;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 简约装饰元素 */
+        .decoration {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(100, 181, 246, 0.2);
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid rgba(171, 71, 188, 0.15);
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        
+        .square {
+            position: absolute;
+            background: rgba(255, 241, 118, 0.15);
+            transform: rotate(45deg);
+            animation: float 12s ease-in-out infinite;
+        }
+        
+        /* 主容器样式 */
+        .container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            padding: 40px 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10;
+            border: 2px solid rgba(171, 71, 188, 0.1);
+        }
+        
+        h1 {
+            color: #5c6bc0;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            line-height: 1.4;
+            font-weight: 600;
+            position: relative;
+            padding: 0 20px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #78909c;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 20px 50px;
+            font-size: 1.8rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        #agree-btn {
+            background: linear-gradient(to right, #64b5f6, #9575cd);
+            color: white;
+            transition: all 0.5s ease;
+        }
+        
+        #agree-btn:hover {
+            background: linear-gradient(to right, #5c6bc0, #7e57c2);
+        }
+        
+        #reject-btn {
+            background: linear-gradient(to right, #ffb74d, #ff8a65);
+            color: white;
+        }
+        
+        #reject-btn:hover {
+            background: linear-gradient(to right, #ffa726, #ff7043);
+        }
+        
+        /* 成功页面样式 */
+        .success-page {
+            display: none;
+            text-align: center;
+        }
+        
+        .success-page h1 {
+            color: #7e57c2;
+            font-size: 3.5rem;
+            animation: subtlePulse 2.5s infinite alternate;
+            margin-bottom: 30px;
+        }
+        
+        .success-page p {
+            font-size: 1.8rem;
+            color: #5c6bc0;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .success-emoji {
+            font-size: 4rem;
+            margin: 30px 0;
+            display: block;
+        }
+        
+        .counter {
+            font-size: 1.2rem;
+            color: #78909c;
+            margin-top: 25px;
+            font-style: italic;
+            background: rgba(100, 181, 246, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .message {
+            font-size: 1.5rem;
+            color: #5c6bc0;
+            margin-top: 25px;
+            min-height: 40px;
+            font-weight: 500;
+            padding: 15px;
+            background: rgba(171, 71, 188, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid #5c6bc0;
+        }
+        
+        /* 动画定义 */
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg); 
+            }
+            50% { 
+                transform: translateY(-20px) rotate(5deg); 
+            }
+        }
+        
+        @keyframes subtlePulse {
+            0% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(1.03); 
+                opacity: 0.9;
+            }
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes gentlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.3rem;
+            }
+            
+            .btn {
+                font-size: 1.5rem;
+                padding: 18px 40px;
+                min-width: 160px;
+            }
+            
+            .success-page h1 {
+                font-size: 2.8rem;
+            }
+            
+            .container {
+                padding: 30px 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.9rem;
+                padding: 0 10px;
+            }
+            
+            .btn {
+                font-size: 1.3rem;
+                padding: 16px 30px;
+                min-width: 140px;
+            }
+            
+            .button-container {
+                gap: 20px;
+            }
+            
+            .success-page h1 {
+                font-size: 2.2rem;
+            }
+            
+            .success-emoji {
+                font-size: 3rem;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- 简约装饰元素 -->
+    <div id="decorations"></div>
+    
+    <!-- 主页面 -->
+    <div class="container fade-in" id="main-page">
+        <h1>等下次见面，能让我亲亲嘛</h1>
+        <div class="subtitle">一个真诚的请求，希望你能认真考虑</div>
+        
+        <div class="button-container">
+            <button class="btn" id="agree-btn">同意</button>
+            <button class="btn" id="reject-btn">拒绝</button>
+        </div>
+        
+        <div class="counter" id="counter">拒绝次数: <span id="reject-count">0</span></div>
+        <div class="message" id="message"></div>
+    </div>
+    
+    <!-- 成功页面 -->
+    <div class="container success-page fade-in" id="success-page">
+        <span class="success-emoji">✨</span>
+        <h1>太棒了，你同意啦！</h1>
+        <p>期待我们的下次见面</p>
+        <p>这将会是一个美好的约定</p>
+        <p>我已经开始期待了</p>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const agreeBtn = document.getElementById('agree-btn');
+        const rejectBtn = document.getElementById('reject-btn');
+        const mainPage = document.getElementById('main-page');
+        const successPage = document.getElementById('success-page');
+        const rejectCountEl = document.getElementById('reject-count');
+        const messageEl = document.getElementById('message');
+        const decorationsEl = document.getElementById('decorations');
+        
+        // 初始化变量
+        let rejectCount = 0;
+        let agreeBtnSize = 1; // 初始缩放比例为1
+        const maxSize = 10; // 最大缩放倍数
+        const messages = [
+            "要不要再考虑一下？",
+            "我真的会很开心的",
+            "给个机会好吗？",
+            "我会很期待我们的见面",
+            "就答应我吧",
+            "不要这么快拒绝嘛",
+            "每点一次拒绝，同意按钮就会变大哦",
+            "快要到屏幕边缘了",
+            "马上要填满整个屏幕了",
+            "这是最后的机会了！"
+        ];
+        
+        // 创建简约装饰元素
+        function createDecorations() {
+            const types = ['circle', 'triangle', 'square'];
+            const sizes = [40, 60, 80, 100];
+            const colors = {
+                circle: ['rgba(100, 181, 246, 0.15)', 'rgba(171, 71, 188, 0.1)', 'rgba(121, 134, 203, 0.12)'],
+                triangle: ['rgba(171, 71, 188, 0.1)', 'rgba(100, 181, 246, 0.1)', 'rgba(255, 183, 77, 0.1)'],
+                square: ['rgba(255, 241, 118, 0.1)', 'rgba(129, 199, 132, 0.1)', 'rgba(100, 181, 246, 0.1)']
+            };
+            
+            for (let i = 0; i < 12; i++) {
+                const type = types[Math.floor(Math.random() * types.length)];
+                const decoration = document.createElement('div');
+                decoration.className = `${type} decoration`;
+                
+                // 随机位置
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                
+                decoration.style.left = `${left}%`;
+                decoration.style.top = `${top}%`;
+                
+                // 随机大小
+                const size = sizes[Math.floor(Math.random() * sizes.length)];
+                if (type === 'circle') {
+                    decoration.style.width = `${size}px`;
+                    decoration.style.height = `${size}px`;
+                } else if (type === 'triangle') {
+                    const borderSize = size / 2;
+                    decoration.style.borderLeftWidth = `${borderSize}px`;
+                    decoration.style.borderRightWidth = `${borderSize}px`;
+                    decoration.style.borderBottomWidth = `${borderSize * 0.875}px`;
+                } else if (type === 'square') {
+                    decoration.style.width = `${size}px`;
+                    decoration.style.height = `${size}px`;
+                }
+                
+                // 随机颜色
+                if (colors[type]) {
+                    const color = colors[type][Math.floor(Math.random() * colors[type].length)];
+                    if (type === 'circle' || type === 'square') {
+                        decoration.style.backgroundColor = color;
+                    } else if (type === 'triangle') {
+                        decoration.style.borderBottomColor = color;
+                    }
+                }
+                
+                // 随机动画延迟和持续时间
+                decoration.style.animationDelay = `${Math.random() * 5}s`;
+                decoration.style.animationDuration = `${8 + Math.random() * 8}s`;
+                
+                decorationsEl.appendChild(decoration);
+            }
+        }
+        
+        // 同意按钮点击事件
+        agreeBtn.addEventListener('click', function() {
+            // 隐藏主页面，显示成功页面
+            mainPage.style.display = 'none';
+            successPage.style.display = 'block';
+            
+            // 修改页面背景
+            document.body.style.background = 'linear-gradient(135deg, #bbdefb 0%, #e1bee7 100%)';
+            
+            // 添加庆祝效果
+            createCelebration();
+        });
+        
+        // 拒绝按钮点击事件
+        rejectBtn.addEventListener('click', function() {
+            // 增加拒绝计数
+            rejectCount++;
+            rejectCountEl.textContent = rejectCount;
+            
+            // 增大同意按钮的大小
+            if (agreeBtnSize < maxSize) {
+                agreeBtnSize += 0.5;
+                agreeBtn.style.transform = `scale(${agreeBtnSize})`;
+                
+                // 当按钮变大时，调整布局避免重叠
+                if (agreeBtnSize > 3) {
+                    agreeBtn.style.margin = '20px';
+                    rejectBtn.style.marginTop = `${agreeBtnSize * 15}px`;
+                }
+                
+                // 当按钮快要填满屏幕时，改变背景色
+                if (agreeBtnSize > 7) {
+                    document.body.style.background = 'linear-gradient(135deg, #90caf9 0%, #ce93d8 100%)';
+                }
+                
+                // 如果达到最大尺寸，让同意按钮填满屏幕
+                if (agreeBtnSize >= maxSize) {
+                    agreeBtn.style.width = '100vw';
+                    agreeBtn.style.height = '100vh';
+                    agreeBtn.style.borderRadius = '0';
+                    agreeBtn.style.position = 'fixed';
+                    agreeBtn.style.top = '0';
+                    agreeBtn.style.left = '0';
+                    agreeBtn.style.zIndex = '100';
+                    agreeBtn.style.fontSize = '3.5rem';
+                    agreeBtn.textContent = '看来你只能同意啦';
+                    
+                    // 隐藏拒绝按钮和其他元素
+                    rejectBtn.style.display = 'none';
+                    document.querySelector('.counter').style.display = 'none';
+                    document.querySelector('.message').style.display = 'none';
+                    
+                    // 修改标题
+                    document.querySelector('h1').textContent = '同意按钮已经填满整个屏幕';
+                    
+                    // 修改背景
+                    document.body.style.background = '#5c6bc0';
+                    mainPage.style.background = 'transparent';
+                    mainPage.style.boxShadow = 'none';
+                    mainPage.style.border = 'none';
+                }
+            }
+            
+            // 显示随机消息
+            const messageIndex = Math.min(rejectCount - 1, messages.length - 1);
+            if (messageIndex >= 0) {
+                messageEl.textContent = messages[messageIndex];
+            }
+            
+            // 添加震动效果
+            rejectBtn.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                rejectBtn.style.animation = '';
+            }, 500);
+            
+            // 添加点击特效
+            createClickEffect();
+        });
+        
+        // 创建点击特效
+        function createClickEffect() {
+            const effect = document.createElement('div');
+            effect.style.position = 'fixed';
+            effect.style.left = `${Math.random() * 80 + 10}%`;
+            effect.style.top = `${Math.random() * 80 + 10}%`;
+            effect.style.fontSize = '1.8rem';
+            effect.style.zIndex = '1000';
+            effect.style.pointerEvents = 'none';
+            effect.style.animation = 'float 1.2s ease-out forwards';
+            effect.style.opacity = '0.7';
+            effect.textContent = '●';
+            effect.style.color = '#ff8a65';
+            
+            document.body.appendChild(effect);
+            
+            // 1.2秒后移除特效
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    document.body.removeChild(effect);
+                }
+            }, 1200);
+        }
+        
+        // 创建庆祝特效
+        function createCelebration() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const effect = document.createElement('div');
+                    effect.style.position = 'fixed';
+                    effect.style.left = `${Math.random() * 100}%`;
+                    effect.style.top = `${Math.random() * 100}%`;
+                    effect.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+                    effect.style.zIndex = '1000';
+                    effect.style.pointerEvents = 'none';
+                    effect.style.animation = 'float 1.8s ease-out forwards';
+                    effect.style.opacity = '0.8';
+                    
+                    const symbols = ['✦', '✧', '❂', '◎', '◈', '○', '◇'];
+                    effect.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    effect.style.color = ['#5c6bc0', '#7e57c2', '#64b5f6'][Math.floor(Math.random() * 3)];
+                    
+                    document.body.appendChild(effect);
+                    
+                    // 1.8秒后移除特效
+                    setTimeout(() => {
+                        if (effect.parentNode) {
+                            document.body.removeChild(effect);
+                        }
+                    }, 1800);
+                }, i * 80);
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        window.addEventListener('load', function() {
+            // 添加同意按钮的脉动动画
+            agreeBtn.style.animation = 'gentlePulse 2s infinite';
+            
+            // 创建装饰元素
+            createDecorations();
+            
+            // 添加标题动画
+            const title = document.querySelector('h1');
+            title.style.animation = 'subtlePulse 3s infinite alternate';
+        });
+        
+        // 添加CSS动画规则
+        const style = document.createElement('style');
+        style.textContent = `
+            .circle:nth-child(3n) { animation-duration: 9s; }
+            .circle:nth-child(3n+1) { animation-duration: 7s; }
+            .circle:nth-child(3n+2) { animation-duration: 11s; }
+            
+            .triangle:nth-child(3n) { animation-duration: 10s; }
+            .triangle:nth-child(3n+1) { animation-duration: 8s; }
+            .triangle:nth-child(3n+2) { animation-duration: 12s; }
+            
+            .square:nth-child(3n) { animation-duration: 11s; }
+            .square:nth-child(3n+1) { animation-duration: 9s; }
+            .square:nth-child(3n+2) { animation-duration: 13s; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
